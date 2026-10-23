@@ -1,0 +1,6 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [{"hooks": [{"type": "command", "command": "bash ~/.claude/skills/learnloop/hooks/correction-reminder.sh", "timeout": 10}]}],
+    "Stop": [{"hooks": [{"type": "command", "command": "bash ~/.claude/skills/learnloop/hooks/memory-commit.sh", "timeout": 30, "async": true}]}]
+  }
+}
