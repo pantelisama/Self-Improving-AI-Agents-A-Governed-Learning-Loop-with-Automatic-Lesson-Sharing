@@ -94,6 +94,35 @@ twice, improvised the run instead of following the documented procedure.
 ![Automatic pushes](docs/images/c_pushes.png)
 ![From feedback to upgraded skills](docs/images/c_funnel.png)
 
+## Benchmarks: speed, cost and defect detection
+
+Measured on real Claude Code session logs: 52 requests before the skill, 220 after (medians).
+
+| Per user request | Before | After | Change |
+|---|---|---|---|
+| Time until done | 16.6 min | 2.6 min | **6× faster** |
+| Agent steps | 19 | 10 | −47% |
+| Tool calls | 7 | 4 | −43% |
+| Tokens | 32M | 10M | **−70%** |
+| Next message is a correction | 9.6% | 7.3% | −24% |
+| Context per step | 283k | 206k | −27% |
+
+**Consistency (less wandering):** worst-case steps (p90) 65 → 47, time spread (IQR) 36 → 16 min.
+
+Controlled code-review runs on the same branch:
+
+| Test | Result | Verdict |
+|---|---|---|
+| Before vs after, same task | Same or slightly more bugs found | ✅ no regression |
+| No lessons vs lessons (ablation) | Missed a known bug without lessons | ✅ lessons help |
+| 4× and 10× more lessons | Quality holds; tokens up to 2.3× at 10× | ⚠️ watch size |
+| 300 junk lessons | Quality unchanged, +80% tokens | ⚠️ prune junk |
+| A conflicting lesson | Agent silently followed the wrong one | ❌ needs a conflict check |
+| Automatic checkers | 9/9 bugs caught, both versions | ✅ unchanged |
+
+*Field data is observational: the task mix and other changes also moved over the period. The
+controlled runs were 1–2 per setup.*
+
 ## Benefits
 
 - **Stop repeating yourself.** A correction given once stays given, in every session.
@@ -163,6 +192,13 @@ docs/                    design document and figures
 
 ## Limitations and next steps
 
-The prototype shows the loop works and shares lessons automatically. It does not yet
-measure the time saved: the next step is to measure how often the same correction is needed
-per task, before and after adoption, across more teams.
+- **Cost grows with memory.** Tokens grow roughly linearly with the number of lessons. Next:
+  load only the lessons relevant to the task.
+- **Conflicting lessons are not detected.** An agent followed a wrong lesson silently. Next: lint
+  new lessons for duplicates, conflicts and expiry.
+- **Lessons can still be ignored.** Next: turn the most important lessons into automatic checks.
+- **Small samples.** Next: a repeat-mistake benchmark with n ≥ 5 runs per setup.
+
+## License
+
+MIT
